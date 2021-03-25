@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace ConwaysGameOfLife
 {
-    class Program
+    public class GameOfLife
     {
         // Seems like these dimensions yield ten different generations
         static int Rows = 5;
         static int Cols = 5;
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var generations = new List<int[,]>();
             var grid = new int[,]
@@ -20,7 +20,6 @@ namespace ConwaysGameOfLife
                 {0,0,0,0,0},
                 {0,0,0,0,0}
             };
-            var newGrid = new int[Rows, Cols];
             generations.Add(grid); //first generation added to list
 
             Console.WriteLine("Press ESC to stop");
@@ -40,32 +39,8 @@ namespace ConwaysGameOfLife
 
                 while (!Console.KeyAvailable)
                 {
-                    for (var i = 0; i < Rows; i++)
-                    {
-                        for (var j = 0; j < Cols; j++)
-                        {
-                            if (grid[i, j] == 1 && checkNeighbors(grid, i, j) < 2) //live cell with fewer than 2 neighbors dies
-                            {
-                                newGrid[i, j] = 0;
-                            }
-                            else if (grid[i, j] == 1 && (checkNeighbors(grid, i, j) == 2 || checkNeighbors(grid, i, j) == 3)) //live cell with two or three neighbors lives on
-                            {
-                                newGrid[i, j] = 1;
-                            }
-                            else if (grid[i, j] == 1 && checkNeighbors(grid, i, j) > 3) //live cell with more than 3 neighbors dies
-                            {
-                                newGrid[i, j] = 0;
-                            }
-                            else if (grid[i, j] == 0 && checkNeighbors(grid, i, j) == 3) //dead cell with exactly 3 neighbors becomes alive
-                            {
-                                newGrid[i, j] = 1;
-                            }
-                            else
-                            {
-                                newGrid[i, j] = grid[i, j];
-                            }
-                        }
-                    }
+                    var newGrid = GenerateNextGeneration(grid);
+
                     //Printing each new generation
                     Console.WriteLine("Next generation: ");
                     for (var i = 0; i < Rows; i++)
@@ -80,27 +55,52 @@ namespace ConwaysGameOfLife
 
                     generations.Add(newGrid);
 
+                    // create deep copy of new grid for next generation
                     for (var i = 0; i < Rows; i++)
                     {
                         for (var j = 0; j < Cols; j++)
                         {
-                            grid[i, j] = newGrid[i, j]; // create deep copy of new grid for next generation
+                            grid[i, j] = newGrid[i, j];
                         }
                     }
                 }
             } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+        }
 
+        public static int[,] GenerateNextGeneration(int [,] grid)
+        {
+            var newGrid = new int[Rows, Cols];
             for (var i = 0; i < Rows; i++)
             {
                 for (var j = 0; j < Cols; j++)
                 {
-                    Console.Write(newGrid[i, j]);
-                    Console.Write(' ');
+                    if (grid[i, j] == 1 && CheckNeighbors(grid, i, j) < 2) //live cell with fewer than 2 neighbors dies
+                    {
+                        newGrid[i, j] = 0;
+                    }
+                    else if (grid[i, j] == 1 && (CheckNeighbors(grid, i, j) == 2 || CheckNeighbors(grid, i, j) == 3)) //live cell with two or three neighbors lives on
+                    {
+                        newGrid[i, j] = 1;
+                    }
+                    else if (grid[i, j] == 1 && CheckNeighbors(grid, i, j) > 3) //live cell with more than 3 neighbors dies
+                    {
+                        newGrid[i, j] = 0;
+                    }
+                    else if (grid[i, j] == 0 && CheckNeighbors(grid, i, j) == 3) //dead cell with exactly 3 neighbors becomes alive
+                    {
+                        newGrid[i, j] = 1;
+                    }
+                    else
+                    {
+                        newGrid[i, j] = grid[i, j];
+                    }
                 }
-                Console.WriteLine();
             }
+
+            return newGrid;
         }
-        private static int checkNeighbors(int[,] grid, int row, int col)
+
+        public static int CheckNeighbors(int[,] grid, int row, int col)
         {
             var liveNeighbors = 0;
 
