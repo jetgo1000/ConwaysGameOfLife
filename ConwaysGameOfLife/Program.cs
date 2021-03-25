@@ -1,46 +1,94 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ConwaysGameOfLife
 {
     class Program
     {
+        // Seems like these dimensions yield ten different generations
         static int Rows = 5;
         static int Cols = 5;
 
         static void Main(string[] args)
         {
+            var generations = new List<int[,]>();
             var grid = new int[,]
             {
-                {0,0,0,0,0},
-                {0,1,0,1,0},
-                {0,0,1,1,0},
                 {0,0,1,0,0},
+                {0,0,0,1,0},
+                {0,1,1,1,0},
+                {0,0,0,0,0},
                 {0,0,0,0,0}
             };
             var newGrid = new int[Rows, Cols];
+            generations.Add(grid); //first generation added to list
 
-            for (var i = 0; i < Rows; i++)
+            Console.WriteLine("Press ESC to stop");
+            do
             {
-                for (var j = 0; j < Cols; j++)
+                //printing first generation
+                Console.WriteLine("First generation: ");
+                for (var i = 0; i < Rows; i++)
                 {
-                    if (grid[i, j] == 1 && checkNeighbors(grid, i, j) < 2) //live cell with fewer than 2 neighbors dies
+                    for (var j = 0; j < Cols; j++)
                     {
-                        newGrid[i, j] = 0;
+                        Console.Write(grid[i, j]);
+                        Console.Write(' ');
                     }
-                    else if (grid[i, j] == 1 && (checkNeighbors(grid, i, j) == 2 || checkNeighbors(grid, i, j) == 3)) //live cell with two or three neighbors lives on
+                    Console.WriteLine();
+                }
+
+                while (!Console.KeyAvailable)
+                {
+                    for (var i = 0; i < Rows; i++)
                     {
-                        newGrid[i, j] = 1;
+                        for (var j = 0; j < Cols; j++)
+                        {
+                            if (grid[i, j] == 1 && checkNeighbors(grid, i, j) < 2) //live cell with fewer than 2 neighbors dies
+                            {
+                                newGrid[i, j] = 0;
+                            }
+                            else if (grid[i, j] == 1 && (checkNeighbors(grid, i, j) == 2 || checkNeighbors(grid, i, j) == 3)) //live cell with two or three neighbors lives on
+                            {
+                                newGrid[i, j] = 1;
+                            }
+                            else if (grid[i, j] == 1 && checkNeighbors(grid, i, j) > 3) //live cell with more than 3 neighbors dies
+                            {
+                                newGrid[i, j] = 0;
+                            }
+                            else if (grid[i, j] == 0 && checkNeighbors(grid, i, j) == 3) //dead cell with exactly 3 neighbors becomes alive
+                            {
+                                newGrid[i, j] = 1;
+                            }
+                            else
+                            {
+                                newGrid[i, j] = grid[i, j];
+                            }
+                        }
                     }
-                    else if (grid[i, j] == 1 && checkNeighbors(grid, i, j) > 3) //live cell with more than 3 neighbors dies
+                    //Printing each new generation
+                    Console.WriteLine("Next generation: ");
+                    for (var i = 0; i < Rows; i++)
                     {
-                        newGrid[i, j] = 0;
+                        for (var j = 0; j < Cols; j++)
+                        {
+                            Console.Write(newGrid[i, j]);
+                            Console.Write(' ');
+                        }
+                        Console.WriteLine();
                     }
-                    else if (grid[i, j] == 0 && checkNeighbors(grid, i, j) == 3) //dead cell with exactly 3 neighbors becomes alive
+
+                    generations.Add(newGrid);
+
+                    for (var i = 0; i < Rows; i++)
                     {
-                        newGrid[i, j] = 1;
+                        for (var j = 0; j < Cols; j++)
+                        {
+                            grid[i, j] = newGrid[i, j]; // create deep copy of new grid for next generation
+                        }
                     }
                 }
-            }
+            } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
 
             for (var i = 0; i < Rows; i++)
             {
