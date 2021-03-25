@@ -11,6 +11,7 @@ namespace ConwaysGameOfLife
 
         public static void Main(string[] args)
         {
+            var counter = 0;
             var generations = new List<int[,]>();
             var grid = new int[,]
             {
@@ -22,49 +23,47 @@ namespace ConwaysGameOfLife
             };
             generations.Add(grid); //first generation added to list
 
-            Console.WriteLine("Press ESC to stop");
-            do
+            //printing first generation
+            Console.WriteLine("First generation: ");
+            for (var i = 0; i < Rows; i++)
             {
-                //printing first generation
-                Console.WriteLine("First generation: ");
+                for (var j = 0; j < Cols; j++)
+                {
+                    Console.Write(grid[i, j]);
+                    Console.Write(' ');
+                }
+                Console.WriteLine();
+            }
+
+            while (counter < 10)
+            {
+                var newGrid = GenerateNextGeneration(grid);
+
+                //Printing each new generation
+                Console.WriteLine("Next generation: ");
                 for (var i = 0; i < Rows; i++)
                 {
                     for (var j = 0; j < Cols; j++)
                     {
-                        Console.Write(grid[i, j]);
+                        Console.Write(newGrid[i, j]);
                         Console.Write(' ');
                     }
                     Console.WriteLine();
                 }
 
-                while (!Console.KeyAvailable)
+                generations.Add(newGrid);
+
+                // create deep copy of new grid for next generation
+                for (var i = 0; i < Rows; i++)
                 {
-                    var newGrid = GenerateNextGeneration(grid);
-
-                    //Printing each new generation
-                    Console.WriteLine("Next generation: ");
-                    for (var i = 0; i < Rows; i++)
+                    for (var j = 0; j < Cols; j++)
                     {
-                        for (var j = 0; j < Cols; j++)
-                        {
-                            Console.Write(newGrid[i, j]);
-                            Console.Write(' ');
-                        }
-                        Console.WriteLine();
-                    }
-
-                    generations.Add(newGrid);
-
-                    // create deep copy of new grid for next generation
-                    for (var i = 0; i < Rows; i++)
-                    {
-                        for (var j = 0; j < Cols; j++)
-                        {
-                            grid[i, j] = newGrid[i, j];
-                        }
+                        grid[i, j] = newGrid[i, j];
                     }
                 }
-            } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+
+                counter++;
+            }
         }
 
         public static int[,] GenerateNextGeneration(int [,] grid)
